@@ -1,19 +1,17 @@
 package io;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 
-import core.Element;
+import util.PlyScanner;
+import core.ElementDefinition;
 import core.Format;
-import core.Property;
+import core.PropertyDefinition;
+import core.datatype.DataType;
 
 /**
  * A parser for the PLY File Format.
@@ -38,9 +36,9 @@ public class PlyReader {
 	private PlyHandler handler;
 
 	/**
-	 * List with {@link Element} definitions.
+	 * List with {@link ElementDefinition} definitions.
 	 */
-	private List<Element> elements = new ArrayList<Element>();
+	private List<ElementDefinition> elements = new ArrayList<ElementDefinition>();
 
 	/**
 	 * The line which is currently parsed.
@@ -55,12 +53,13 @@ public class PlyReader {
 		this.path = path;
 		this.handler = handler;
 
-		try (InputStream stream = Files.newInputStream(path)) {
-			try (InputStreamReader inputReader = new InputStreamReader(stream)) {
-				try (BufferedReader reader = new BufferedReader(inputReader)) {
-					parseHeader(reader);
-				}
-			}
+		try {
+			PlyScanner reader = new PlyScanner(path.toFile());
+			parseHeader(reader);
+			parseBody(reader, format, handler);
+		}
+		catch(IOException e) {
+			
 		}
 	}
 
@@ -103,18 +102,18 @@ public class PlyReader {
 	 * @throws IOException
 	 * @throws ParseException
 	 */
-	private void parseHeader(BufferedReader reader) throws IOException,
+	private void parseHeader(PlyScanner reader) throws IOException,
 			ParseException {
 		String line;
 		String filename = path.toFile().getName();
 		boolean headerEnd = false;
-		Element element = null;
+		ElementDefinition element = null;
 
 		/*---------------------------------------------------------
 		 * check the magic number
 		 *-------------------------------------------------------*/
 
-		line = reader.readLine();
+		line = reader.nextLine();
 		if (line == null)
 			throw new ParseException("the file is empty!", filename, 1, 1);
 		if (line.matches("ply +"))
@@ -127,7 +126,7 @@ public class PlyReader {
 		/*---------------------------------------------------------
 		 * parse the header
 		 *-------------------------------------------------------*/
-		while ((line = reader.readLine()) != null) {
+		while ((line = reader.nextLine()) != null) {
 			++lineIndex;
 
 			String[] split = line.split(" +");
@@ -154,19 +153,29 @@ public class PlyReader {
 			} else if (split[0].equals("element")) {
 				if (element != null) {
 					elements.add(element);
-					handler.plyHeaderElement(element);
+					handler.plyElementDefinition(element);
 				}
 				String name = split[1];
 				int count = Integer.parseInt(split[2]);
-				element = new Element(name, count);
+				element = new ElementDefinition(name, count);
 			} else if (split[0].equals("end_header")) {
 				// end of the header found
 				headerEnd = true;
 				if (element != null) {
 					elements.add(element);
-					handler.plyHeaderElement(element);
+					handler.plyElementDefinition(element);
 				}
 				break;
+			} else if (split[0].equals("property")) {
+				String name = split[split.length - 1];
+				String[] typeDefinition = Arrays.copyOfRange(split, 1,
+						split.length - 1);
+
+				DataType<?> dataType = DataType.parseFromString(typeDefinition);
+
+				PropertyDefinition property = new PropertyDefinition(name,
+						dataType);
+				element.addProperty(property);
 			}
 		}
 
@@ -181,6 +190,7 @@ public class PlyReader {
 		if (!headerEnd)
 			throw new ParseException("no end_header deliniater specified!",
 					filename, lineIndex, 1);
+		handler.plyHeaderEnd();
 	}
 
 	/**
@@ -188,30 +198,26 @@ public class PlyReader {
 	 * @param reader
 	 * @throws IOException
 	 */
-	private void parseASCIIBody(BufferedReader reader) throws IOException,
-			ParseException {
-		String filename = path.toFile().getName();
+	private void parseBody(PlyScanner reader, Format format,
+			PlyHandler handler) throws IOException, ParseException {
+		// String filename = path.toFile().getName();
 
-		for (Element element : elements) {
+		// iterate over the elements
+		for (ElementDefinition element : elements) {
+			// iterate over the element occurrences
 			for (int i = 0; i < element.getCount(); ++i) {
 				++lineIndex;
-				String line = reader.readLine();
 
-				if (line == null)
-					throw new ParseException(
-							"expected another line containing an element with name \""
-									+ element.getName()
-									+ "\", but the end of the file has been reached!",
-							filename, lineIndex, 1);
+				// notify that a new element is started
+				handler.plyElementStart(element.getName());
 
-				String[] split = line.split(" +");
-				Stack<String> stack = new Stack<String>();
-				for (String string : split)
-					stack.add(string);
-
-				for (Property property : element) {
-					property.parse(stack.iterator(),element, handler);
+				// split the line
+				for (PropertyDefinition definition : element) {
+					definition.parse(reader, format, handler);
 				}
+
+				// notify that a new element ends
+				handler.plyElementEnd();
 			}
 		}
 	}

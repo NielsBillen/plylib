@@ -1,9 +1,7 @@
 package io;
 
-import core.Element;
+import core.ElementDefinition;
 import core.Format;
-import core.Property;
-import core.datatype.DataType;
 
 /**
  * Implementation of a {@link PlyHandler} which outputs all content back on the
@@ -13,6 +11,13 @@ import core.datatype.DataType;
  * @version 0.1
  */
 public class PlyEchoHandler implements PlyHandler {
+	/**
+	 * 
+	 */
+	public PlyEchoHandler() {
+		System.out.print("ply");
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -21,7 +26,7 @@ public class PlyEchoHandler implements PlyHandler {
 	@Override
 	public void plyHeaderFormat(Format format, int majorVersion,
 			int minorVersion) {
-		System.out.format("format %s %d.%d\n", format.toString().toLowerCase(),
+		System.out.format("\nformat %s %d.%d", format.toString().toLowerCase(),
 				majorVersion, minorVersion);
 	}
 
@@ -32,7 +37,7 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyHeaderComment(String comment) {
-		System.out.format("comment %s\n", comment);
+		System.out.format("\ncomment %s", comment);
 	}
 
 	/*
@@ -41,21 +46,82 @@ public class PlyEchoHandler implements PlyHandler {
 	 * @see io.PlyHandler#plyElement(core.Element)
 	 */
 	@Override
-	public void plyHeaderElement(Element element) {
-		System.out.println(element);
+	public void plyElementDefinition(ElementDefinition element) {
+		System.out.format("\n%s", element);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see io.PlyHandler#plyElement(core.Element, core.Property,
-	 * core.datatype.DataType)
+	 * @see io.PlyHandler#plyElement(java.lang.String)
 	 */
 	@Override
-	public <T extends DataType> void plyElement(Element element,
-			Property<T> property, T data) {
-		// TODO Auto-generated method stub
+	public void plyElementStart(String elementName) {
+		System.out.println();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see io.PlyHandler#plyElementEnd()
+	 */
+	@Override
+	public void plyElementEnd() {
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see io.PlyHandler#plyProperty(java.lang.String, java.lang.Long)
+	 */
+	@Override
+	public void plyProperty(String propertyName, Long value) {
+		System.out.format("%d ", value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see io.PlyHandler#plyProperty(java.lang.String, java.lang.Double)
+	 */
+	@Override
+	public void plyProperty(String propertyName, Double value) {
+		System.out.format("%f ", value);
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see io.PlyHandler#plyProperty(java.lang.String, java.lang.Long[])
+	 */
+	@Override
+	public void plyProperty(String propertyName, Long... value) {
+		System.out.format("%d", value.length);
+		for (Long v : value)
+			System.out.format(" %d", v);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see io.PlyHandler#plyProperty(java.lang.String, java.lang.Double[])
+	 */
+	@Override
+	public void plyProperty(String propertyName, Double... value) {
+		System.out.format("%d", value.length);
+		for (Double v : value)
+			System.out.format(" %f", v);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see io.PlyHandler#plyHeaderEnd()
+	 */
+	@Override
+	public void plyHeaderEnd() {
+		System.out.print("\nend_header");
+	}
 }

@@ -10,7 +10,7 @@ public class UInt8 extends IntScalar {
 	/**
 	 * The singleton instance of {@link UInt8}.
 	 */
-	private static UInt8 UINT8 = new UInt8();
+	public static final UInt8 UINT8 = new UInt8();
 
 	/**
 	 * Creates a new singleton instance of this {@link UInt8}.

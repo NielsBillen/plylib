@@ -10,18 +10,23 @@ public enum Format {
 	BINARY_LITTLE_ENDIAN, BINARY_BIG_ENDIAN, ASCII;
 
 	/**
+	 * Returns the {@link Format} which corresponds to the given string.
 	 * 
-	 * @param string
-	 * @return
+	 * @param format
+	 *            the string to parse the {@link Format} from.
+	 * @throws IllegalArgumentException
+	 *             when no {@link Format} corresponds to the given string.
+	 * @return the {@link Format} corresponding to the given string.
 	 */
-	public static Format parseFromString(String string) {
-		if (string.equals("ascii"))
+	public static Format parseFromString(String format)
+			throws IllegalArgumentException {
+		if (format.equals("ascii"))
 			return ASCII;
-		else if (string.equals("binary_little_endian"))
+		else if (format.equals("binary_little_endian"))
 			return BINARY_LITTLE_ENDIAN;
-		else if (string.equals("binary_big_endian"))
+		else if (format.equals("binary_big_endian"))
 			return BINARY_BIG_ENDIAN;
-		throw new IllegalArgumentException("unrecognized format option \""
-				+ string + "\"");
+		throw new IllegalArgumentException(String.format(
+				"no format corresponds to the given input \"%s\"", format));
 	}
 }

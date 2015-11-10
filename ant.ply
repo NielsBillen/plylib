@@ -6,9 +6,9 @@ property float32 x
 property float32 y
 property float32 z
 element face 912
-property list uint8 int32 vertex_indices
+property list int32 int32 vertex_indices
 end_header
--1.106 3.844 9.073 
+-1.106 3.844 9.073
 -0.3523 0.4402 11.07 
 1.028 3.76 9.209 
 0.137 -0.5632 10.73 

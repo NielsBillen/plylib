@@ -1,5 +1,10 @@
 package core.datatype;
 
+import java.io.IOException;
+
+import util.PlyScanner;
+import core.Format;
+
 /**
  * Represents a signed single byte integer.
  * 
@@ -25,6 +30,22 @@ public class Int8 extends IntScalar {
 	 */
 	public static Int8 getInt8() {
 		return INT8;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see core.datatype.IntScalar#parse(util.PlyScanner, core.Format)
+	 */
+	@Override
+	public Long parse(PlyScanner scanner, Format format) throws IOException,
+			NumberFormatException {
+		if (format.equals(Format.BINARY_LITTLE_ENDIAN))
+			return (long) scanner.nextByte();
+		else if (format.equals(Format.BINARY_LITTLE_ENDIAN))
+			return (long) scanner.nextByte();
+		else
+			return super.parse(scanner, format);
 	}
 
 	/*

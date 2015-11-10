@@ -1,9 +1,7 @@
 package io;
 
-import core.Element;
+import core.ElementDefinition;
 import core.Format;
-import core.Property;
-import core.datatype.DataType;
 
 /**
  * 
@@ -35,18 +33,57 @@ public interface PlyHandler {
 	public void plyHeaderComment(String comment);
 
 	/**
-	 * Called when a new {@link Element} has been parsed from the header.
+	 * 
+	 */
+	public void plyHeaderEnd();
+
+	/**
+	 * Called when a new {@link ElementDefinition} has been parsed from the
+	 * header.
 	 * 
 	 * @param element
-	 *            the {@link Element} which has been parsed.
+	 *            the {@link ElementDefinition} which has been parsed.
 	 */
-	public void plyHeaderElement(Element element);
-	
+	public void plyElementDefinition(ElementDefinition element);
+
+	/**
+	 * Called when a new element with the given name is being parsed.
+	 * 
+	 * @param elementName
+	 *            the name of the element.
+	 */
+	public void plyElementStart(String elementName);
+
+	/**
+	 * Called when the parsing of an element is finished.
+	 */
+	public void plyElementEnd();
+
 	/**
 	 * 
-	 * @param element
-	 * @param property
-	 * @param data
+	 * @param propertyName
+	 * @param value
 	 */
-	public <T extends DataType> void plyElement(Element element, Property<T> property, T data);
+	public void plyProperty(String propertyName, Double value);
+
+	/**
+	 * 
+	 * @param propertyName
+	 * @param value
+	 */
+	public void plyProperty(String propertyName, Long value);
+
+	/**
+	 * 
+	 * @param propertyName
+	 * @param value
+	 */
+	public void plyProperty(String propertyName, Double... value);
+
+	/**
+	 * 
+	 * @param propertyName
+	 * @param value
+	 */
+	public void plyProperty(String propertyName, Long... value);
 }

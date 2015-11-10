@@ -1,12 +1,10 @@
 package core.datatype;
 
-import io.ParseException;
-import io.PlyHandler;
+import java.io.IOException;
+import java.nio.ByteOrder;
 
-import java.util.Iterator;
-
-import core.Element;
-import core.Property;
+import util.PlyScanner;
+import core.Format;
 
 /**
  * Represents a single precision floating point value.
@@ -14,7 +12,7 @@ import core.Property;
  * @author Niels Billen
  * @version 1.0
  */
-public class Float32 extends Scalar<Float> {
+public class Float32 extends FloatScalar {
 	/**
 	 * The singleton instance of {@link Float32}.
 	 */
@@ -38,11 +36,27 @@ public class Float32 extends Scalar<Float> {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see core.datatype.FloatScalar#parse(util.PlyScanner, core.Format)
+	 */
+	@Override
+	public Double parse(PlyScanner reader, Format format) throws IOException,
+			NumberFormatException {
+		if (format.equals(Format.BINARY_LITTLE_ENDIAN))
+			return (double) reader.nextFloat(ByteOrder.LITTLE_ENDIAN);
+		else if (format.equals(Format.BINARY_BIG_ENDIAN))
+			return (double) reader.nextFloat(ByteOrder.BIG_ENDIAN);
+		else
+			return super.parse(reader, format);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see core.datatype.Scalar#getMinimumValue()
 	 */
 	@Override
-	public Float getMinimumValue() {
-		return -Float.MAX_VALUE;
+	public Double getMinimumValue() {
+		return -(double) (Float.MAX_VALUE);
 	}
 
 	/*
@@ -51,8 +65,8 @@ public class Float32 extends Scalar<Float> {
 	 * @see core.datatype.Scalar#getMaximumValue()
 	 */
 	@Override
-	public Float getMaximumValue() {
-		return Float.MAX_VALUE;
+	public Double getMaximumValue() {
+		return (double) (Float.MAX_VALUE);
 	}
 
 	/*
@@ -73,25 +87,5 @@ public class Float32 extends Scalar<Float> {
 	@Override
 	public String toPLY() {
 		return "float32";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see core.datatype.DataType#parse(java.util.Iterator, core.Element,
-	 * core.Property, io.PlyHandler)
-	 */
-	@Override
-	public void parse(Iterator<String> tokens, Element element,
-			Property property, PlyHandler handler) throws NullPointerException,
-			ParseException {
-		if (!tokens.hasNext())
-			throw new ParseException(
-					"no more data on this line to parse the property \""
-							+ property.getName() + "\" of element \""
-							+ element.getName() + "\"");
-		String token = tokens.next();
-		Float value = Float.parseFloat(token);
-		handler.plyElement(element, property, value);
 	}
 }
