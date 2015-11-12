@@ -1,21 +1,25 @@
 package util;
 
+import io.ParseException;
+
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Implementation of a file reader which can read both binary and regular
+ * Implementation of a scanner which can read both binary and regular
  * characters.
  * 
  * @author Niels Billen
  * @version 0.1
  */
-public class PlyScanner {
+public class PlyScanner extends InputStream implements Closeable, AutoCloseable {
 	private DataInputStream stream;
 
 	/**
@@ -28,13 +32,46 @@ public class PlyScanner {
 		stream = new DataInputStream(fin);
 	}
 
-	/**
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return
+	 * @see java.io.InputStream#read()
+	 */
+	@Override
+	public int read() throws IOException {
+		return stream.read();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#finalize()
+	 */
+	@Override
+	protected void finalize() throws Throwable {
+		stream.close();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.io.Closeable#close()
+	 */
+	@Override
+	public void close() throws IOException {
+		stream.close();
+	}
+
+	/**
+	 * Advances this scanner past the current line and returns the input that
+	 * was skipped.
+	 * 
 	 * @throws IOException
+	 *             when an I/O exception occurs during the reading.
+	 * @return the input that was skipped.
 	 */
 	public String nextLine() throws IOException {
-		int b = stream.read();
+		int b = read();
 		if (b == -1)
 			return null;
 
@@ -46,49 +83,55 @@ public class PlyScanner {
 				return builder.toString();
 			else
 				builder.append(c);
-		} while ((b = stream.read()) != -1);
+		} while ((b = read()) != -1);
 		return builder.toString();
 	}
 
 	/**
+	 * Finds and returns the next complete token from this scanner or null when
+	 * no such token can be found.
 	 * 
-	 * @return
 	 * @throws IOException
+	 *             when an I/O exception occurs.
+	 * @return the next complete token from this scanner.
 	 */
 	public String next() throws IOException {
-		int b = stream.read();
+		int b = read();
 		if (b == -1)
 			return null;
 
-		boolean terminate = false;
 		StringBuilder builder = new StringBuilder();
 
+		// check whether the token is valid (i.e, not empty)
+		boolean validToken = false;
 		do {
 			char c = (char) b;
 			if (c == ' ' || c == '\n') {
-				if (terminate)
+				if (validToken)
 					return builder.toString();
 			} else {
-				terminate = true;
+				validToken = true;
 				builder.append(c);
 			}
-		} while ((b = stream.read()) != -1);
+		} while ((b = read()) != -1);
 
-		if (terminate)
+		if (validToken)
 			return builder.toString();
 		else
 			return null;
 	}
 
 	/**
+	 * Returns the next byte seen by this scanner.
 	 * 
-	 * @return
 	 * @throws IOException
+	 *             when an I/O exception occurs.
+	 * @return the next byte seen by this scanner.
 	 */
 	public int nextByte() throws IOException {
-		int result = stream.read();
+		int result = read();
 		if (result == -1)
-			throw new IllegalStateException("no more data in this file!");
+			throw new ParseException("no more data in this file!");
 		return result;
 	}
 
@@ -98,9 +141,9 @@ public class PlyScanner {
 	 * @throws IOException
 	 */
 	public int nextUnsignedByte() throws IOException {
-		int result = stream.read() & 0xff;
+		int result = read() & 0xff;
 		if (result == -1)
-			throw new IllegalStateException("no more data left in this file!");
+			throw new ParseException("no more data in this file!");
 		return result;
 	}
 
@@ -139,7 +182,7 @@ public class PlyScanner {
 			bytes[i] = (byte) nextByte();
 		return ByteBuffer.wrap(bytes).order(order).getInt();
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -160,7 +203,7 @@ public class PlyScanner {
 			bytes[i] = (byte) nextByte();
 		return ByteBuffer.wrap(bytes).order(order).getShort();
 	}
-	
+
 	/**
 	 * 
 	 * @return

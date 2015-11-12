@@ -14,13 +14,6 @@ import core.Format;
  */
 public abstract class DataType<T> {
 	/**
-	 * Returns this {@link DataType} as a string in the PLY File Format.
-	 * 
-	 * @return this {@link DataType} as a string in the PLY File Format.
-	 */
-	public abstract String toPLY();
-
-	/**
 	 * Parses this {@link DataType} from the given scanner.
 	 * 
 	 * @param reader
@@ -44,6 +37,13 @@ public abstract class DataType<T> {
 	public abstract void parseProperty(PlyScanner reader, Format format,
 			String propertyName, PlyHandler handler) throws IOException,
 			NumberFormatException;
+	
+	/**
+	 * Returns this {@link DataType} as a string in the PLY File Format.
+	 * 
+	 * @return this {@link DataType} as a string in the PLY File Format.
+	 */
+	public abstract String toPLY();
 
 	/**
 	 * 

@@ -99,4 +99,29 @@ public class ParseException extends RuntimeException {
 	public void setColumn(int column) {
 		this.column = column;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Throwable#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(getClass().getName());
+		builder.append(":");
+		if (filename != null)
+			builder.append(" in file '").append(filename).append("'");
+		if (row > -1)
+			builder.append(" at line ").append(row);
+		if (column > -1)
+			builder.append(" in column ").append(column);
+
+		if (filename != null || row > -1 || column > -1)
+			builder.append(": ");
+		else
+			builder.append(" ");
+		builder.append(super.getLocalizedMessage());
+		return builder.toString();
+	}
 }

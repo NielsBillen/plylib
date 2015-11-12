@@ -46,21 +46,32 @@ public class PlyReader {
 	private int lineIndex = 1;
 
 	/**
+	 * Creates a new {@link PlyReader} which reads the file specified by the
+	 * given path and hands the parsed data over to the given {@link PlyHandler}
+	 * .
 	 * 
+	 * @param path
+	 *            the path of the file to read.
+	 * @param handler
+	 *            the handler to which the parsed data will be passed.
+	 * @throws NullPointerException
+	 *             when the given path is null.
+	 * @throws NullPointerException
+	 *             when the given {@link PlyHandler} is null.
+	 * @throws IOException
+	 *             when an exception occurs during the reading of the file.
+	 * @throws ParseException
+	 *             when an exception occurs during the parsing of the file.
 	 */
 	private PlyReader(Path path, PlyHandler handler)
 			throws NullPointerException, IOException, ParseException {
 		this.path = path;
 		this.handler = handler;
 
-		try {
-			PlyScanner reader = new PlyScanner(path.toFile());
-			parseHeader(reader);
-			parseBody(reader, format, handler);
-		}
-		catch(IOException e) {
-			
-		}
+		PlyScanner reader = new PlyScanner(path.toFile());
+		parseHeader(reader);
+		parseBody(reader, format, handler);
+		reader.close();
 	}
 
 	/**
@@ -105,7 +116,7 @@ public class PlyReader {
 	private void parseHeader(PlyScanner reader) throws IOException,
 			ParseException {
 		String line;
-		String filename = path.toFile().getName();
+		String filename = path.toFile().getAbsolutePath();
 		boolean headerEnd = false;
 		ElementDefinition element = null;
 
@@ -115,13 +126,16 @@ public class PlyReader {
 
 		line = reader.nextLine();
 		if (line == null)
-			throw new ParseException("the file is empty!", filename, 1, 1);
+			throw new ParseException(
+					"the ply file is empty! it should start with the 'ply' magic number!",
+					filename, 1, 1);
 		if (line.matches("ply +"))
 			throw new ParseException(
-					"unexpected whitespace after magic number!", filename, 1, 4);
+					"unexpected whitespace after 'ply' magic number!",
+					filename, 1, 4);
 		else if (!line.equals("ply"))
-			throw new ParseException("unrecognized magic number!", filename, 1,
-					1);
+			throw new ParseException("unrecognized magic number '" + line
+					+ "'!", filename, 1, 1);
 
 		/*---------------------------------------------------------
 		 * parse the header
@@ -131,51 +145,72 @@ public class PlyReader {
 
 			String[] split = line.split(" +");
 
-			if (split[0].equals("format")) {
-				// extract the version number.
-				format = Format.parseFromString(split[1]);
-				String version = split[2];
-				int dot = version.indexOf('.');
-				int majorVersion = Integer.parseInt(version.substring(0, dot));
-				int minorVersion = Integer.parseInt(version.substring(dot + 1));
+			try {
+				if (split[0].equals("format")) {
+					// extract the version number
+					format = Format.parseFromString(split[1]);
+					String version = split[2];
+					int dot = version.indexOf('.');
+					int majorVersion = Integer.parseInt(version.substring(0,
+							dot));
+					int minorVersion = Integer.parseInt(version
+							.substring(dot + 1));
+					handler.plyHeaderFormat(format, majorVersion, minorVersion);
 
-				handler.plyHeaderFormat(format, majorVersion, minorVersion);
-			} else if (split[0].equals("comment")) {
-				// extract the comment
-				StringBuilder comment = new StringBuilder();
-				for (int i = 1; i < split.length; ++i) {
-					comment.append(split[i]);
-					if (i < split.length - 1)
-						comment.append(" ");
+				} else if (split[0].equals("comment")) {
+					// extract the comment
+					StringBuilder comment = new StringBuilder();
+					for (int i = 1; i < split.length; ++i) {
+						comment.append(split[i]);
+						if (i < split.length - 1)
+							comment.append(" ");
+					}
+
+					handler.plyHeaderComment(comment.toString());
+				} else if (split[0].equals("element")) {
+					if (element != null) {
+						elements.add(element);
+						handler.plyElementDefinition(element);
+					}
+					if (split.length < 3)
+						throw new ParseException(
+								"element requires a name and a count!",
+								filename, lineIndex, 1);
+					else if (split.length > 3)
+						throw new ParseException(
+								"to many arguments for an element definition!",
+								filename, lineIndex, 1);
+					String name = split[1];
+					int count = Integer.parseInt(split[2]);
+					element = new ElementDefinition(name, count);
+				} else if (split[0].equals("end_header")) {
+					// end of the header found
+					headerEnd = true;
+					if (element != null) {
+						elements.add(element);
+						handler.plyElementDefinition(element);
+					}
+					break;
+				} else if (split[0].equals("property")) {
+					String name = split[split.length - 1];
+					String[] typeDefinition = Arrays.copyOfRange(split, 1,
+							split.length - 1);
+
+					DataType<?> dataType = DataType
+							.parseFromString(typeDefinition);
+
+					PropertyDefinition property = new PropertyDefinition(name,
+							dataType);
+					element.addProperty(property);
+				} else {
+					throw new ParseException("unknown ply definition '"
+							+ split[0] + "'", filename, lineIndex, 1);
 				}
-
-				handler.plyHeaderComment(comment.toString());
-			} else if (split[0].equals("element")) {
-				if (element != null) {
-					elements.add(element);
-					handler.plyElementDefinition(element);
-				}
-				String name = split[1];
-				int count = Integer.parseInt(split[2]);
-				element = new ElementDefinition(name, count);
-			} else if (split[0].equals("end_header")) {
-				// end of the header found
-				headerEnd = true;
-				if (element != null) {
-					elements.add(element);
-					handler.plyElementDefinition(element);
-				}
-				break;
-			} else if (split[0].equals("property")) {
-				String name = split[split.length - 1];
-				String[] typeDefinition = Arrays.copyOfRange(split, 1,
-						split.length - 1);
-
-				DataType<?> dataType = DataType.parseFromString(typeDefinition);
-
-				PropertyDefinition property = new PropertyDefinition(name,
-						dataType);
-				element.addProperty(property);
+			} catch (ParseException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new ParseException("\n\t" + e.toString(), filename,
+						lineIndex, -1);
 			}
 		}
 
@@ -198,8 +233,8 @@ public class PlyReader {
 	 * @param reader
 	 * @throws IOException
 	 */
-	private void parseBody(PlyScanner reader, Format format,
-			PlyHandler handler) throws IOException, ParseException {
+	private void parseBody(PlyScanner reader, Format format, PlyHandler handler)
+			throws IOException, ParseException {
 		// String filename = path.toFile().getName();
 
 		// iterate over the elements

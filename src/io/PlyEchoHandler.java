@@ -107,7 +107,7 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyProperty(String propertyName, Double value) {
-		print("%f ", value);
+		print("%s ", value);
 
 	}
 
@@ -133,7 +133,7 @@ public class PlyEchoHandler implements PlyHandler {
 	public void plyProperty(String propertyName, Double... value) {
 		print("%d", value.length);
 		for (Double v : value)
-			System.out.format(" %f", v);
+			System.out.format(" %s", v);
 	}
 
 	/*
