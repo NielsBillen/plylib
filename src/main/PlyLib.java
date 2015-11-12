@@ -11,14 +11,14 @@ import java.io.IOException;
  * @author Niels Billen
  * @version 1.0
  */
-public class PlyUtil {
+public class PlyLib {
 	/**
 	 * 
 	 * @param args
-	 * @throws IOException
 	 * @throws ParseException
+	 * @throws IOException
 	 */
 	public static void main(String[] args) throws ParseException, IOException {
-		PlyReader.parse("bidir_0.ply", new PlyEchoHandler());
+		PlyReader.parse("cube.ply", new PlyEchoHandler());
 	}
 }

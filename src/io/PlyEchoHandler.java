@@ -1,5 +1,7 @@
 package io;
 
+import java.io.PrintStream;
+
 import core.ElementDefinition;
 import core.Format;
 
@@ -11,11 +13,30 @@ import core.Format;
  * @version 0.1
  */
 public class PlyEchoHandler implements PlyHandler {
+	private boolean printed = false;
+	private PrintStream out = System.out;
+
 	/**
-	 * 
+	 * Creates a new {@link PlyEchoHandler} which prints all the parsed
+	 * information back on the standard output stream.
 	 */
 	public PlyEchoHandler() {
-		System.out.print("ply");
+	}
+
+	/**
+	 * Prints a string in the given format and with the given arguments.
+	 * 
+	 * @param format
+	 *            the format of the string.
+	 * @param arguments
+	 *            the arguments for the string.
+	 */
+	private void print(String format, Object... arguments) {
+		if (!printed) {
+			printed = true;
+			out.print("ply");
+		}
+		out.format(format, arguments);
 	}
 
 	/*
@@ -26,7 +47,7 @@ public class PlyEchoHandler implements PlyHandler {
 	@Override
 	public void plyHeaderFormat(Format format, int majorVersion,
 			int minorVersion) {
-		System.out.format("\nformat %s %d.%d", format.toString().toLowerCase(),
+		print("\nformat %s %d.%d", format.toString().toLowerCase(),
 				majorVersion, minorVersion);
 	}
 
@@ -37,7 +58,7 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyHeaderComment(String comment) {
-		System.out.format("\ncomment %s", comment);
+		print("\ncomment %s", comment);
 	}
 
 	/*
@@ -47,7 +68,7 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyElementDefinition(ElementDefinition element) {
-		System.out.format("\n%s", element);
+		print("\n%s", element);
 	}
 
 	/*
@@ -57,7 +78,7 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyElementStart(String elementName) {
-		System.out.println();
+		print("\n");
 	}
 
 	/*
@@ -76,7 +97,7 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyProperty(String propertyName, Long value) {
-		System.out.format("%d ", value);
+		print("%d ", value);
 	}
 
 	/*
@@ -86,7 +107,7 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyProperty(String propertyName, Double value) {
-		System.out.format("%f ", value);
+		print("%f ", value);
 
 	}
 
@@ -97,7 +118,7 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyProperty(String propertyName, Long... value) {
-		System.out.format("%d", value.length);
+		print("%d", value.length);
 		for (Long v : value)
 			System.out.format(" %d", v);
 
@@ -110,7 +131,7 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyProperty(String propertyName, Double... value) {
-		System.out.format("%d", value.length);
+		print("%d", value.length);
 		for (Double v : value)
 			System.out.format(" %f", v);
 	}
@@ -122,6 +143,6 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyHeaderEnd() {
-		System.out.print("\nend_header");
+		print("\nend_header");
 	}
 }
