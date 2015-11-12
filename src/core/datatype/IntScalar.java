@@ -57,6 +57,7 @@ public abstract class IntScalar extends Scalar<Long> {
 	}
 
 	/**
+	 * Returns the {@link IntScalar} which matches thg given string.
 	 * 
 	 * @param datatype
 	 * @return
@@ -64,17 +65,17 @@ public abstract class IntScalar extends Scalar<Long> {
 	public static IntScalar parseFromString(String scalarType) {
 		if (scalarType == null)
 			throw new NullPointerException("the given type definition is null!");
-		if (scalarType.equals("int8"))
+		if (scalarType.equals("int8") || scalarType.equals("char"))
 			return Int8.INT8;
-		else if (scalarType.equals("int16"))
+		else if (scalarType.equals("int16") || scalarType.equals("short"))
 			return Int16.INT16;
 		else if (scalarType.equals("int32") || scalarType.equals("int"))
 			return Int32.INT32;
 		else if (scalarType.equals("uint8") || scalarType.equals("uchar"))
 			return UInt8.UINT8;
-		else if (scalarType.equals("uint16"))
+		else if (scalarType.equals("uint16") || scalarType.equals("short"))
 			return UInt16.UINT16;
-		else if (scalarType.equals("uint32"))
+		else if (scalarType.equals("uint32") || scalarType.equals("uint"))
 			return UInt32.UINT32;
 		throw new IllegalArgumentException(
 				String.format(

@@ -7,7 +7,7 @@ import util.PlyScanner;
 import core.Format;
 
 /**
- * Represents a {@link DataType} in the PLY File Format.
+ * Represents a {@link DataType} in the Ply File Format.
  * 
  * @author Niels Billen
  * @version 0.1
@@ -24,7 +24,12 @@ public abstract class DataType<T> {
 	 * Parses this {@link DataType} from the given scanner.
 	 * 
 	 * @param reader
+	 *            the reader where the data is parsed from.
+	 * @param format
+	 *            the format the file is written in.
 	 * @return
+	 * @throws IOException
+	 * @throws NumberFormatException
 	 */
 	public abstract T parse(PlyScanner reader, Format format)
 			throws IOException, NumberFormatException;

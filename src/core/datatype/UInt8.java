@@ -1,5 +1,10 @@
 package core.datatype;
 
+import java.io.IOException;
+
+import util.PlyScanner;
+import core.Format;
+
 /**
  * Represents a unsigned single byte integer.
  * 
@@ -25,6 +30,31 @@ public class UInt8 extends IntScalar {
 	 */
 	public static UInt8 getUInt8() {
 		return UINT8;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see core.datatype.IntScalar#parse(util.PlyScanner, core.Format)
+	 */
+	@Override
+	public Long parse(PlyScanner scanner, Format format) throws IOException,
+			NumberFormatException {
+		long result;
+		if (format.equals(Format.BINARY_LITTLE_ENDIAN)
+				|| format.equals(Format.BINARY_BIG_ENDIAN))
+			result = scanner.nextUnsignedByte();
+		else
+			result = super.parse(scanner, format);
+
+		if (!isInRange(result))
+			throw new IllegalStateException(
+					String.format(
+							"the parsed %s with value %d is not within the allowed range [%d, %d]",
+							toPLY(), result, getMinimumValue(),
+							getMaximumValue()));
+
+		return result;
 	}
 
 	/*

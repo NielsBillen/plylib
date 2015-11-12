@@ -1,5 +1,11 @@
 package core.datatype;
 
+import java.io.IOException;
+import java.nio.ByteOrder;
+
+import util.PlyScanner;
+import core.Format;
+
 /**
  * Represents an unsigned short integer.
  * 
@@ -25,6 +31,27 @@ public class UInt16 extends IntScalar {
 	 */
 	public static UInt16 getUInt16() {
 		return UINT16;
+	}
+
+	@Override
+	public Long parse(PlyScanner scanner, Format format) throws IOException,
+			NumberFormatException {
+		long result;
+		if (format.equals(Format.BINARY_LITTLE_ENDIAN))
+			result = (long) scanner.nextUnsignedShort(ByteOrder.LITTLE_ENDIAN);
+		else if (format.equals(Format.BINARY_BIG_ENDIAN))
+			result = (long) scanner.nextUnsignedShort(ByteOrder.BIG_ENDIAN);
+		else
+			result = super.parse(scanner, format);
+
+		if (!isInRange(result))
+			throw new IllegalStateException(
+					String.format(
+							"the parsed %s with value %d is not within the allowed range [%d, %d]",
+							toPLY(), result, getMinimumValue(),
+							getMaximumValue()));
+
+		return result;
 	}
 
 	/*
