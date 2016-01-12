@@ -88,24 +88,4 @@ public class Float64 extends FloatScalar {
 	public String toPLY() {
 		return "float64";
 	}
-
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see core.datatype.DataType#parse(java.util.Iterator, core.Element,
-	// * core.Property, io.PlyHandler)
-	// */
-	// @Override
-	// public void parse(Iterator<String> tokens, Element element,
-	// Property property, PlyHandler handler) throws NullPointerException,
-	// ParseException {
-	// if (!tokens.hasNext())
-	// throw new ParseException(
-	// "no more data on this line to parse the property \""
-	// + property.getName() + "\" of element \""
-	// + element.getName() + "\"");
-	// String token = tokens.next();
-	// Double value = Double.parseDouble(token);
-	// handler.plyElement(element, property, value);
-	// }
 }

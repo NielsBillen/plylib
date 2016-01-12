@@ -59,7 +59,7 @@ public abstract class FloatScalar extends Scalar<Double> {
 
 	/**
 	 * 
-	 * @param datatype
+	 * @param scalarType
 	 * @return
 	 */
 	public static FloatScalar parseFromString(String scalarType) {

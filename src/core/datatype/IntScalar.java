@@ -5,6 +5,9 @@ import io.PlyHandler;
 import java.io.IOException;
 
 import util.PlyScanner;
+
+import io.ParseException;
+
 import core.Format;
 
 /**
@@ -21,9 +24,15 @@ public abstract class IntScalar extends Scalar<Long> {
 	 */
 	@Override
 	public Long parse(PlyScanner scanner, Format format) throws IOException,
-			NumberFormatException {
-		if (format.equals(Format.ASCII))
-			return Long.parseLong(scanner.next());
+			NumberFormatException, ParseException {
+		if (format.equals(Format.ASCII)) {
+			String token = scanner.next();
+			if (token == null)
+				throw new ParseException(
+						"unexpected end of file while parsing datatype '" + toPLY()
+								+ "'");
+			return Long.parseLong(token);
+		}
 		throw new IllegalStateException("unsupported format " + format);
 	}
 
@@ -36,7 +45,7 @@ public abstract class IntScalar extends Scalar<Long> {
 	@Override
 	public void parseProperty(PlyScanner scanner, Format format,
 			String propertyName, PlyHandler handler) throws IOException,
-			NumberFormatException {
+			NumberFormatException, ParseException {
 		handler.plyProperty(propertyName, parse(scanner, format));
 	}
 
@@ -49,7 +58,7 @@ public abstract class IntScalar extends Scalar<Long> {
 	@Override
 	public void parseListProperty(PlyScanner scanner, String propertyName,
 			int size, Format format, PlyHandler handler) throws IOException,
-			NumberFormatException {
+			NumberFormatException, ParseException {
 		Long[] result = new Long[size];
 		for (int i = 0; i < size; ++i)
 			result[i] = parse(scanner, format);

@@ -40,12 +40,33 @@ public class ParseException extends RuntimeException {
 	}
 
 	/**
+	 * 
+	 * @param e
+	 */
+	public ParseException(Exception e) {
+		super(e);
+	}
+
+	/**
 	 * Create
 	 * 
 	 * @param message
 	 */
 	public ParseException(String message, String filename, int row, int column) {
 		super(message);
+
+		setFilename(filename);
+		setRow(row);
+		setColumn(column);
+	}
+
+	/**
+	 * Create
+	 * 
+	 * @param message
+	 */
+	public ParseException(Exception e, String filename, int row, int column) {
+		super(e);
 
 		setFilename(filename);
 		setRow(row);
@@ -109,19 +130,22 @@ public class ParseException extends RuntimeException {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(getClass().getName());
-		builder.append(":");
-		if (filename != null)
-			builder.append(" in file '").append(filename).append("'");
-		if (row > -1)
-			builder.append(" at line ").append(row);
-		if (column > -1)
-			builder.append(" in column ").append(column);
+		builder.append(": ");
+		builder.append(super.getLocalizedMessage());
+		
+		StringBuilder location = new StringBuilder();
 
-		if (filename != null || row > -1 || column > -1)
-			builder.append(": ");
+		if (filename != null)
+			location.append("in file '").append(filename).append("' ");
+		if (row > -1)
+			location.append("at line ").append(row).append(" ");
+		if (column > -1)
+			location.append("in column ").append(column).append(" ");
+
+		if (location.length() > 0)
+			builder.append("\n\t").append(location);
 		else
 			builder.append(" ");
-		builder.append(super.getLocalizedMessage());
 		return builder.toString();
 	}
 }

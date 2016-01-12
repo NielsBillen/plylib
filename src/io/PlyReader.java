@@ -231,29 +231,39 @@ public class PlyReader {
 	/**
 	 * 
 	 * @param reader
+	 * @param format
+	 * @param handler
 	 * @throws IOException
+	 * @throws ParseException
 	 */
 	private void parseBody(PlyScanner reader, Format format, PlyHandler handler)
 			throws IOException, ParseException {
-		// String filename = path.toFile().getName();
+		try {
+			// iterate over the elements
+			for (ElementDefinition element : elements) {
+				// iterate over the element occurrences
+				for (int i = 0; i < element.getCount(); ++i) {
+					++lineIndex;
 
-		// iterate over the elements
-		for (ElementDefinition element : elements) {
-			// iterate over the element occurrences
-			for (int i = 0; i < element.getCount(); ++i) {
-				++lineIndex;
+					// notify that a new element is started
+					handler.plyElementStart(element.getName());
 
-				// notify that a new element is started
-				handler.plyElementStart(element.getName());
+					// split the line
+					for (PropertyDefinition definition : element) {
+						definition.parse(reader, format, handler);
+					}
 
-				// split the line
-				for (PropertyDefinition definition : element) {
-					definition.parse(reader, format, handler);
+					// notify that a new element ends
+					handler.plyElementEnd();
 				}
-
-				// notify that a new element ends
-				handler.plyElementEnd();
 			}
+		} catch (ParseException e) {
+			e.setRow(lineIndex);
+			e.setFilename(path.toFile().getAbsolutePath());
+			throw e;
+		} catch (Exception e) {
+			throw new ParseException(e, path.toFile().getAbsolutePath(),
+					lineIndex, 0);
 		}
 	}
 }

@@ -1,8 +1,11 @@
 package core.datatype;
 
+import io.PlyHandler;
+
 import java.io.IOException;
 
-import io.PlyHandler;
+import io.ParseException;
+
 import util.PlyScanner;
 import core.Format;
 
@@ -23,9 +26,10 @@ public abstract class DataType<T> {
 	 * @return
 	 * @throws IOException
 	 * @throws NumberFormatException
+	 * @throws ParseException 
 	 */
 	public abstract T parse(PlyScanner reader, Format format)
-			throws IOException, NumberFormatException;
+			throws IOException, NumberFormatException, ParseException;
 
 	/**
 	 * 
@@ -33,11 +37,12 @@ public abstract class DataType<T> {
 	 * @param format
 	 * @param propertyName
 	 * @param handler
+	 * @throws ParseException 
 	 */
 	public abstract void parseProperty(PlyScanner reader, Format format,
 			String propertyName, PlyHandler handler) throws IOException,
-			NumberFormatException;
-	
+			NumberFormatException, ParseException;
+
 	/**
 	 * Returns this {@link DataType} as a string in the PLY File Format.
 	 * 
@@ -49,6 +54,8 @@ public abstract class DataType<T> {
 	 * 
 	 * @param typeDefinition
 	 * @return
+	 * @throws NullPointerException
+	 * @throws IllegalArgumentException
 	 */
 	public static DataType<?> parseFromString(String... typeDefinition)
 			throws NullPointerException, IllegalArgumentException {

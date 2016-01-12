@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 
 import util.PlyScanner;
+
+import io.ParseException;
+
 import core.Format;
 
 /**
@@ -33,9 +36,14 @@ public class UInt16 extends IntScalar {
 		return UINT16;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see core.datatype.IntScalar#parse(util.PlyScanner, core.Format)
+	 */
 	@Override
 	public Long parse(PlyScanner scanner, Format format) throws IOException,
-			NumberFormatException {
+			NumberFormatException, ParseException {
 		long result;
 		if (format.equals(Format.BINARY_LITTLE_ENDIAN))
 			result = (long) scanner.nextUnsignedShort(ByteOrder.LITTLE_ENDIAN);

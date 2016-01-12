@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.ParseException;
+
 import util.PlyScanner;
 import core.Format;
 
@@ -76,7 +78,7 @@ public class PlyList<T extends Comparable<T>> extends DataType<List<T>> {
 	 */
 	@Override
 	public List<T> parse(PlyScanner reader, Format format)
-			throws IOException, NumberFormatException {
+			throws IOException, NumberFormatException, ParseException {
 		long longSize = size.parse(reader, format);
 		if (longSize < 0)
 			throw new IllegalStateException(
@@ -101,7 +103,7 @@ public class PlyList<T extends Comparable<T>> extends DataType<List<T>> {
 	@Override
 	public void parseProperty(PlyScanner reader, Format format,
 			String propertyName, PlyHandler handler) throws IOException,
-			NumberFormatException {
+			NumberFormatException, ParseException {
 		long longSize = size.parse(reader, format);
 		if (longSize < 0)
 			throw new IllegalStateException(

@@ -4,6 +4,8 @@ import io.PlyHandler;
 
 import java.io.IOException;
 
+import io.ParseException;
+
 import util.PlyScanner;
 import core.Format;
 
@@ -76,8 +78,9 @@ public abstract class Scalar<T extends Comparable<T>> extends DataType<T> {
 	 * @param size
 	 * @param format
 	 * @param handler
+	 * @throws ParseException 
 	 */
 	public abstract void parseListProperty(PlyScanner reader,
 			String propertyName, int size, Format format, PlyHandler handler)
-			throws IOException, NumberFormatException;
+			throws IOException, NumberFormatException, ParseException;
 }

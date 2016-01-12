@@ -1,5 +1,7 @@
 package core.datatype;
 
+import io.ParseException;
+
 import java.io.IOException;
 import java.nio.ByteOrder;
 
@@ -40,7 +42,7 @@ public class Int16 extends IntScalar {
 	 */
 	@Override
 	public Long parse(PlyScanner scanner, Format format) throws IOException,
-			NumberFormatException {
+			NumberFormatException, ParseException {
 		if (format.equals(Format.BINARY_LITTLE_ENDIAN))
 			return (long) scanner.nextShort(ByteOrder.LITTLE_ENDIAN);
 		else if (format.equals(Format.BINARY_LITTLE_ENDIAN))
