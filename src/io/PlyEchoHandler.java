@@ -118,10 +118,9 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyProperty(String propertyName, Long... value) {
-		print("%d", value.length);
+		print("%d ", value.length);
 		for (Long v : value)
-			System.out.format(" %d", v);
-
+			System.out.format("%d ", v);
 	}
 
 	/*
@@ -131,9 +130,9 @@ public class PlyEchoHandler implements PlyHandler {
 	 */
 	@Override
 	public void plyProperty(String propertyName, Double... value) {
-		print("%d", value.length);
+		print("%d ", value.length);
 		for (Double v : value)
-			System.out.format(" %s", v);
+			System.out.format("%s ", v);
 	}
 
 	/*

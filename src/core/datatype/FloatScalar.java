@@ -53,7 +53,7 @@ public abstract class FloatScalar extends Scalar<Double> {
 			NumberFormatException {
 		Double[] result = new Double[size];
 		for (int i = 0; i < size; ++i)
-			result[size] = parse(reader, format);
+			result[i] = parse(reader, format);
 		handler.plyProperty(propertyName, result);
 	}
 

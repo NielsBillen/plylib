@@ -21,6 +21,9 @@ import java.nio.ByteOrder;
  */
 public class PlyScanner extends InputStream implements Closeable, AutoCloseable {
 	private DataInputStream stream;
+	private byte[] buffer = new byte[1024 * 1024]; // buffer of one megabyte
+	private int bufferIndex = 0;
+	private int bufferLength = 0;
 
 	/**
 	 * 
@@ -39,7 +42,17 @@ public class PlyScanner extends InputStream implements Closeable, AutoCloseable 
 	 */
 	@Override
 	public int read() throws IOException {
-		return stream.read();
+		if (bufferIndex == bufferLength) {
+			bufferLength = stream.read(buffer);
+			if (bufferLength == -1)
+				return -1;
+			bufferIndex = 0;
+		}
+
+		int result = buffer[bufferIndex++];
+		if (result < 0)
+			result += 255;
+		return result;
 	}
 
 	/*

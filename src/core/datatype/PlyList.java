@@ -77,8 +77,8 @@ public class PlyList<T extends Comparable<T>> extends DataType<List<T>> {
 	 * @see core.datatype.DataType#parse(util.PlyFileReader, core.Format)
 	 */
 	@Override
-	public List<T> parse(PlyScanner reader, Format format)
-			throws IOException, NumberFormatException, ParseException {
+	public List<T> parse(PlyScanner reader, Format format) throws IOException,
+			NumberFormatException, ParseException {
 		long longSize = size.parse(reader, format);
 		if (longSize < 0)
 			throw new IllegalStateException(
